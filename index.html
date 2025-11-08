@@ -75,21 +75,21 @@
 
       getResponse(userInput) {
         const input = [{
-          message: ['hello', 'hi', 'hey', 'what\'s up', 'yo'],
+          message: ['hello', 'hi', 'hey', 'up', 'yo'],
           response: 'Hi there, how can I help you?'
         }, {
-          message: ['can or would you please flip a coin', 'heads or tails'],
+          message: ['flip', 'heads or tails', 'coin', 'spin'],
           response: () => {return this.flipCoin()}
         }, {
-          message: 'can you roll or throw a dice',
+          message: ['roll', 'throw', 'dice', 'die'],
           response: () => {return this.rollDice()}
         }, {
-          message: ['can you get me today\'s date', 'what month are we in?'],
+          message: ['today', 'month', 'date', 'day'],
           response: () => {return this.getDate()}
         }]
 
         const fuse = new Fuse(input, {
-          threshold: 0.4,
+          threshold: 5,
           keys: ['message']
         })
 
@@ -220,18 +220,10 @@
 
     function App() {
 
-      const [message, setMessage] = React.useState([{
-        message: 'Hello',
-        sender: 'user',
-        id: crypto.randomUUID()
-      }, {
-        message: 'How can I help you',
-        sender: 'robot',
-        id: crypto.randomUUID()
-      }])
+      const [message, setMessage] = React.useState([]);
 
       return (
-        <div className='flex flex-col h-screen h-dvh'>
+        <div className='flex flex-col h-dvh'>
           <Message 
             message={message}
           />
