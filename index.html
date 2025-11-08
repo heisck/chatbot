@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>exercise</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .js-scrollbar {
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="js-container"></div>
+
+  <script src="https://unpkg.com/supersimpledev/react.js"></script>
+  <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+  <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+
+  <script src="https://unpkg.com/fuse.js@7.1.0/dist/fuse.js"></script>
+
+
+  <script type="text/babel">
+
+    class Chatbot{
+
+      pickRes() {
+        const number = Math.floor(Math.random() * 3);
+        return number;
+      }
+
+      flipCoin() {
+        const number = Math.random();
+
+        const headRes = ['You got heads', 'Sure, you got heads', 'Alright you got heads']
+
+        const tailRes = ['You got tails', 'Sure, you got tails', 'Alright you got tails']
+
+        if (number < 0.5) {
+          return headRes[this.pickRes()]
+        }
+
+        return tailRes[this.pickRes()]
+      }
+
+      rollDice() {
+        const number = Math.ceil(Math.random() * 6);
+
+        const res = [`You got ${number}`, `Sure, you got ${number}`, `Ok, you scored a ${number}`]
+
+        return res[this.pickRes()];
+      }
+
+      getDate() {
+        const date = new Date();
+
+        const months = [
+          "January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"
+        ];
+
+        const daysOfWeek = [
+          "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+        ];
+
+        const day = daysOfWeek[date.getDay()];
+        const month = months[date.getMonth()];
+
+        return `Sure today is ${day} ${month} ${date.getDate()}`
+      } 
+
+      getResponse(userInput) {
+        const input = [{
+          message: ['hello', 'hi', 'hey', 'what\'s up', 'yo'],
+          response: 'Hi there, how can I help you?'
+        }, {
+          message: ['can or would you please flip a coin', 'heads or tails'],
+          response: () => {return this.flipCoin()}
+        }, {
+          message: 'can you roll or throw a dice',
+          response: () => {return this.rollDice()}
+        }, {
+          message: ['can you get me today\'s date', 'what month are we in?'],
+          response: () => {return this.getDate()}
+        }]
+
+        const fuse = new Fuse(input, {
+          threshold: 0.4,
+          keys: ['message']
+        })
+
+        const result = fuse.search(userInput);
+
+        if (result.length > 0) {
+
+          if (typeof result[0].item.response === 'function') {
+            return result[0].item.response();
+          }
+
+          return result[0].item.response;
+        }
+        return `Sorry I didn't quite catch that.
+        I can only flip a coin,
+        get today's date and
+        roll a dice`;
+      }
+
+    }
+
+    function Input({ message, setMessage }) {
+
+      const [value, setValue] = React.useState('');
+
+      function getUserMessage(e) {
+        setValue(e.target.value);
+      }
+
+      function renderUserMessage() {
+        if (value) {
+          const userMessage = [
+            ...message, 
+            {
+              message: value,
+              sender: 'user',
+              id: crypto.randomUUID()
+            }
+          ]
+          setMessage(userMessage)
+
+          const chatbot = new Chatbot();
+          const response = chatbot.getResponse(value);
+          
+          setMessage([
+            ...userMessage, 
+            {
+              message: <img src="loading.gif" className="w-12" />,
+              sender: 'robot',
+              id: crypto.randomUUID()
+            }
+          ])
+
+          setTimeout(() => {
+            setMessage([
+              ...userMessage, 
+              {
+                message: response,
+                sender: 'robot',
+                id: crypto.randomUUID()
+              }
+            ])
+          }, 500);
+
+          setValue('');
+        }
+      }
+
+      return (
+        <header className="flex m-2 mb-7">
+          <input
+            name='userInput'
+            placeholder='Send you message to the chatbot'
+            onChange={getUserMessage}
+            value={value}
+            className="min-w-0 flex-1 border-2 border-solid border-zinc-600 p-2 rounded-lg"
+          />
+          <button
+            onClick={renderUserMessage}
+            className="bg-green-600 px-5 ml-3 rounded-lg text-slate-50 font-bold"
+          >Send</button>
+        </header>
+      );
+    }
+
+    function Message({ message }) {
+      
+      React.useEffect(() => {
+        const container = autoScroll.current;
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth'
+        })
+      }, [message])
+
+      const autoScroll = React.useRef(null);
+        
+
+      return (
+      <div ref={autoScroll} className='flex-auto mt-3 overflow-auto js-scrollbar'>  
+        {message.map((msg, key) => {
+          const sender = msg.sender;
+          return (
+            <div
+              key = {msg.id}
+              className= {`flex mb-4 items-center font-semibold m-2 ${sender === 'user' && 'justify-end'}`}
+            >
+              {sender === 'robot' && 
+              <img 
+                width="40px" 
+                src="robot.png" 
+              />}
+              <p 
+                className="p-2 bg-slate-200 rounded-lg mx-2 max-w-96"
+              >{msg.message}</p>
+              {sender === 'user' && 
+              <img 
+                width="40px" 
+                src="user.png" 
+              />}
+            </div>
+          )
+        })}
+      </div>
+      );
+    }
+
+
+    function App() {
+
+      const [message, setMessage] = React.useState([{
+        message: 'Hello',
+        sender: 'user',
+        id: crypto.randomUUID()
+      }, {
+        message: 'How can I help you',
+        sender: 'robot',
+        id: crypto.randomUUID()
+      }])
+
+      return (
+        <div className='flex flex-col h-screen h-dvh'>
+          <Message 
+            message={message}
+          />
+          <Input 
+            message={message}
+            setMessage={setMessage}
+          />
+        </div>
+      );
+    }
+
+    const container = document.querySelector('.js-container');
+
+    const root = ReactDOM.createRoot(container);
+
+    root.render(<App />);
+  </script>
+  
+</body>
+</html>
