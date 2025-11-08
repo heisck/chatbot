@@ -220,15 +220,7 @@
 
     function App() {
 
-      const [message, setMessage] = React.useState([{
-        message: 'Hello',
-        sender: 'user',
-        id: crypto.randomUUID()
-      }, {
-        message: 'How can I help you',
-        sender: 'robot',
-        id: crypto.randomUUID()
-      }])
+      const [message, setMessage] = React.useState([])
 
       return (
         <div className='flex flex-col h-dvh'>
