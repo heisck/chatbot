@@ -75,21 +75,21 @@
 
       getResponse(userInput) {
         const input = [{
-          message: ['hello', 'hi', 'hey', 'what\'s up', 'yo'],
+          message: ['hello', 'hi', 'hey', 'up', 'yo'],
           response: 'Hi there, how can I help you?'
         }, {
-          message: ['can or would you please flip a coin', 'heads or tails'],
+          message: ['flip', 'heads or tails', 'coin', 'spin'],
           response: () => {return this.flipCoin()}
         }, {
-          message: 'can you roll or throw a dice',
+          message: ['roll', 'throw', 'dice', 'die'],
           response: () => {return this.rollDice()}
         }, {
-          message: ['can you get me today\'s date', 'what month are we in?'],
+          message: ['today', 'month', 'date', 'day'],
           response: () => {return this.getDate()}
         }]
 
         const fuse = new Fuse(input, {
-          threshold: 0.4,
+          threshold: 0.9,
           keys: ['message']
         })
 
@@ -162,7 +162,7 @@
         <header className="flex m-2 mb-7">
           <input
             name='userInput'
-            placeholder='Send your message to the chatbot'
+            placeholder='Send you message to the chatbot'
             onChange={getUserMessage}
             value={value}
             className="min-w-0 flex-1 border-2 border-solid border-zinc-600 p-2 rounded-lg"
@@ -220,7 +220,7 @@
 
     function App() {
 
-      const [message, setMessage] = React.useState([])
+      const [message, setMessage] = React.useState([]);
 
       return (
         <div className='flex flex-col h-dvh'>
