@@ -76,7 +76,9 @@
       getResponse(userInput) {
         const input = [{
           message: ['hello', 'hi', 'hey', 'up', 'yo'],
-          response: 'Hi there, how can I help you?'
+          response: `Hi there, how can I help you? I can only flip a coin,
+        get today's date and
+        roll a dice`
         }, {
           message: ['flip', 'heads or tails', 'coin', 'spin'],
           response: () => {return this.flipCoin()}
